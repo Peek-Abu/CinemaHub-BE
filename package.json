@@ -1,0 +1,19 @@
+{
+  "name": "cinema-be",
+  "version": "1.0.0",
+  "description": "Back-end for the CinemaHub Project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uzitak161/CinemaHub-BE.git"
+  },
+  "author": "Uzay, David, Bruk",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/uzitak161/CinemaHub-BE/issues"
+  },
+  "homepage": "https://github.com/uzitak161/CinemaHub-BE#readme"
+}
