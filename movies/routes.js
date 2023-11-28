@@ -14,6 +14,10 @@ function MovieRoutes(app) {
     const movie = await dao.findMovieById(req.params.movieId);
     res.json(movie);
   };
+  const findMovieByOMDBId = async (req, res) => {
+    const movie = await dao.findMovieByOMDBId(req.params.omdbId);
+    res.json(movie);
+  }
   const findMovieByTitle = async (req, res) => {
     const movie = await dao.findMovieByTitle(req.params.title);
     res.json(movie);
@@ -31,6 +35,7 @@ function MovieRoutes(app) {
   app.post("/api/movies", createMovie);
   app.get("/api/movies", findAllMovies);
   app.get("/api/movies/:movieId", findMovieById);
+  app.get("/api/movies/omdb/:omdbId", findMovieByOMDBId);
   app.get("/api/movies/title/:title", findMovieByTitle);
   app.put("/api/movies/:movieId", updateMovie);
   app.delete("/api/movies/:movieId", deleteMovie);
