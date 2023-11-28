@@ -2,8 +2,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import UserRoutes from "./users/routes.js";
-import CommentRoutes from "./comments/routes.js";
-import MovieRoutes from "./movies/routes.js";
+import ReviewRoutes from "./reviews/routes.js";
 
 mongoose.connection.on("open", function (ref) {
   console.log("Connected to mongo server.");
@@ -27,8 +26,7 @@ app.use(
 app.use(express.json());
 
 UserRoutes(app);
-CommentRoutes(app);
-MovieRoutes(app);
+ReviewRoutes(app);
 
 app.listen(4000, () => {
   console.log("Server running on port 4000");

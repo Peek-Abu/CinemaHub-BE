@@ -1,6 +1,8 @@
 import * as dao from "./dao.js";
 
 function UserRoutes(app) {
+
+  // TODO this may need to be updated since nested ObjectId
   const createUser = async (req, res) => {
     const user = await dao.createUser(req.body);
     res.json(user);
@@ -19,11 +21,12 @@ function UserRoutes(app) {
   };
   const findUserByCredentials = async (req, res) => {
     const user = await dao.findUserByCredentials(
-      req.params.usr,
-      req.params.pass,
+      req.params.username,
+      req.params.password,
     );
     res.json(user);
   };
+  // TODO this may need to be updated since nested ObjectId
   const updateUser = async (req, res) => {
     const { userId } = req.params;
     const status = await dao.updateUser(userId, req.body);
