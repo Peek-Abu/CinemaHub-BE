@@ -25,6 +25,12 @@ function UserRoutes(app) {
       , req.query.minFollowing);
     res.json(users);
   }
+
+  const findUserByUsername = async (req, res) => {
+    const user = await dao.findUserByUsername(req.params.username);
+    res.json(user);
+  }
+  
   // TODO this may need to be updated since nested ObjectId
   const updateUser = async (req, res) => {
     const { userId } = req.params;
