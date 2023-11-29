@@ -26,6 +26,11 @@ function UserRoutes(app) {
     );
     res.json(user);
   };
+  const findUsersByNames = async (req, res) => {
+    const users = await dao.findUsersByNames(req.params.name, req.query.role
+      , req.query.minFollowing);
+    res.json(users);
+  }
   // TODO this may need to be updated since nested ObjectId
   const updateUser = async (req, res) => {
     const { userId } = req.params;
@@ -42,6 +47,7 @@ function UserRoutes(app) {
   app.get("/api/users/:userId", findUserById);
   app.get("/api/users/username/:username", findUserByUsername);
   app.get("/api/users/credentials/:usr/:pass", findUserByCredentials);
+  app.get("/api/users/names/:name", findUsersByNames);
   app.put("/api/users/:userId", updateUser);
   app.delete("/api/users/:userId", deleteUser);
 }
