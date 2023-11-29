@@ -1,4 +1,5 @@
 import express from "express";
+import session from "express-session";
 import cors from "cors";
 import mongoose from "mongoose";
 import UserRoutes from "./users/routes.js";
@@ -23,6 +24,12 @@ app.use(
     origin: ["http://localhost:3000", process.env.REACT_APP_FRONTEND_URL],
   }),
 );
+const sessionOptions = {
+  secret: "any string",
+  resave: false,
+  saveUninitialized: false,
+};
+app.use(session(sessionOptions));
 app.use(express.json());
 
 UserRoutes(app);
