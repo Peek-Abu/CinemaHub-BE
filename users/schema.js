@@ -6,9 +6,7 @@ const schema = new mongoose.Schema(
     username: { type: String, unique: true, required: true },
     password: { type: String, required: true },
     role: { type: String, enum: user_roles, default: "USER" },
-    following: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "users", default: [] },
-    ],
+    following: [{ type: String, ref: "users", default: [] }],
     reviews: [
       { type: mongoose.Schema.Types.ObjectId, ref: "reviews", default: [] },
     ],
