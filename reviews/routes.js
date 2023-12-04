@@ -22,7 +22,7 @@ function ReviewRoutes(app) {
     res.json(review);
   };
   const findReviewByUsername = async (req, res) => {
-    const review = await dao.findReviewByUsername(req.params.username);
+    const review = await dao.findReviewByUsername(req.params.userId);
     res.json(review);
   };
   const updateReview = async (req, res) => {
