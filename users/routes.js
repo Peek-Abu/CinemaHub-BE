@@ -1,4 +1,6 @@
 import * as dao from "./dao.js";
+import * as reviewDao from "../reviews/dao.js";
+import { findReviewsByUsername } from "../reviews/dao.js";
 
 function UserRoutes(app) {
   const createUser = async (req, res) => {
@@ -31,11 +33,75 @@ function UserRoutes(app) {
 
   const updateUser = async (req, res) => {
     const { username } = req.params;
+
+    const user = await dao.findUserByUsername(username);
+    // update the followers
+    const followers = user.followers;
+    for (let i = 0; i < followers.length; i++) {
+      const follower = await dao.findUserByUsername(followers[i]);
+      follower.following = follower.following.map((u) =>
+        u === username ? req.body.username : u,
+      );
+      await dao.updateUser(follower.username, follower);
+    }
+
+    // update the following
+    const followings = user.following;
+    for (let i = 0; i < followings.length; i++) {
+      const following = await dao.findUserByUsername(followings[i]);
+      following.followers = following.followers.map((u) =>
+        u === username ? req.body.username : u,
+      );
+      await dao.updateUser(following.username, following);
+    }
+
+    // update our reviews
+    const reviews = await reviewDao.findReviewsByUsername(username);
+    for (let i = 0; i < reviews.length; i++) {
+      const review = reviews[i];
+      review.username = req.body.username;
+      await reviewDao.updateReview(review._id, review);
+    }
+
+    // update the user
     const status = await dao.updateUser(username, req.body);
+
     res.json(status);
   };
   const deleteUser = async (req, res) => {
+    const { username } = req.params;
+    console.log("Username: " + username);
+    const user = await dao.findUserByUsername(username);
+    // update the followers
+    const followers = user.followers;
+    console.log("Followers: " + followers);
+    for (let i = 0; i < followers.length; i++) {
+      const follower = await dao.findUserByUsername(followers[i]);
+      console.log("Follower before: " + follower);
+      follower.following = follower.following.filter((u) => u !== username);
+      console.log("Follower after: " + follower);
+      await dao.updateUser(follower.username, follower);
+    }
+    console.log("done");
+
+    // update the following
+    const followings = user.following;
+    for (let i = 0; i < followings.length; i++) {
+      const following = await dao.findUserByUsername(followings[i]);
+      following.followers = following.followers.filter((u) => u !== username);
+      await dao.updateUser(following.username, following);
+    }
+
+    // delete our reviews
+    const reviews = await reviewDao.findReviewsByUsername(username);
+    for (let i = 0; i < reviews.length; i++) {
+      const review = reviews[i];
+      await reviewDao.deleteReview(review._id);
+    }
+
+    // delete the user
     const status = await dao.deleteUser(req.params.username);
+
     res.json(status);
   };
 
@@ -67,8 +133,6 @@ function UserRoutes(app) {
     const { username } = req.params;
     const currentUser = req.session["currentUser"];
     const followerUser = await dao.findUserByUsername(username);
-    console.log(currentUser);
-    console.log(followerUser);
 
     // TODO: Add logic for repeat following just to make sure
     // TODO: Add logic for adding followers as well only had following at the moment
@@ -89,7 +153,7 @@ function UserRoutes(app) {
   app.get("/api/users/:userId", findUserById);
   app.get("/api/users/username/:username", findUserByUsername);
   app.get("/api/users/credentials/:usr/:pass", findUserByCredentials);
-  app.put("/api/users/:userId", updateUser);
+  app.put("/api/users/:username", updateUser);
   app.delete("/api/users/:username", deleteUser);
 
   app.post("/api/users/signup", signup);
