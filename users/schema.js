@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
+
 const user_roles = ["ADMIN", "USER"];
 
 const schema = new mongoose.Schema(
   {
     username: { type: String, unique: true, required: true },
     password: { type: String, required: true },
+    bio: { type: String, required: false },
     role: { type: String, enum: user_roles, default: "USER" },
     following: [{ type: String, ref: "users", default: [] }],
-    reviews: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "reviews", default: [] },
-    ],
-    createdAt: { type: Date, default: Date.now },
+    followers: [{ type: String, ref: "users", default: [] }],
+    reels: [{ type: mongoose.Types.ObjectId, ref: "reels", default: [] }],
   },
   { collection: "users" },
 );
