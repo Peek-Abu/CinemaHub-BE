@@ -64,6 +64,7 @@ function UserRoutes(app) {
 
     // update the user
     const status = await dao.updateUser(username, req.body);
+    console.log(req.body)
 
     res.json(status);
   };
@@ -145,6 +146,22 @@ function UserRoutes(app) {
     }
   };
 
+  const unFollow = async (req, res) => {
+    const { username } = req.params;
+    const currentUser = req.session["currentUser"];
+    const followedUser = await dao.findUserByUsername(username);
+
+    if (currentUser && followedUser) {
+      currentUser.following = currentUser.following.filter((u) => u !== username);
+      followedUser.followers = followedUser.followers.filter((u) => u !== currentUser.username);
+      await dao.updateUser(currentUser.username, currentUser);
+      await dao.updateUser(followedUser.username, followedUser);
+      res.json(followedUser);
+    } else {
+      res.status(400).json({ error: "Username does not exist" });
+    }
+  };
+
   app.post("/api/users", createUser);
   app.get("/api/users", findAllUsers);
   app.get("/api/users/:userId", findUserById);
@@ -159,6 +176,7 @@ function UserRoutes(app) {
   app.post("/api/users/account", account);
 
   app.put("/api/users/username/:username/follow", addFollower);
+  app.put("/api/users/username/:username/unfollow", unFollow)
 }
 
 export default UserRoutes;
