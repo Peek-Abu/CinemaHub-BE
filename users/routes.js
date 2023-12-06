@@ -1,6 +1,5 @@
 import * as dao from "./dao.js";
 import * as reviewDao from "../reviews/dao.js";
-import { findReviewsByUsername } from "../reviews/dao.js";
 
 function UserRoutes(app) {
   const createUser = async (req, res) => {
@@ -16,12 +15,12 @@ function UserRoutes(app) {
     res.json(user);
   };
   const findUserByUsername = async (req, res) => {
-    if ((await dao.findUserByUsername(req.params.username)) == null) {
       const user = await dao.findUserByUsername(req.params.username);
-      res.json(user);
-    } else {
-      res.status(400).json({ error: "Username already used" });
-    }
+      if (user) {
+        res.json(user);
+      } else {
+        res.status(400).json({ error: "Username does not exist" })
+      }
   };
   const findUserByCredentials = async (req, res) => {
     const user = await dao.findUserByCredentials(
@@ -132,17 +131,15 @@ function UserRoutes(app) {
   const addFollower = async (req, res) => {
     const { username } = req.params;
     const currentUser = req.session["currentUser"];
-    const followerUser = await dao.findUserByUsername(username);
+    const followedUser = await dao.findUserByUsername(username);
 
-    // TODO: Add logic for repeat following just to make sure
-    // TODO: Add logic for adding followers as well only had following at the moment
-    if (currentUser && followerUser) {
-      currentUser.following.push(followerUser.username);
-      // currentUser.followers.push(followerUser._id);
-      // followerUser.following.push(currentUser._id);
-      await dao.updateUser(currentUser._id, currentUser);
-      // await dao.updateUser(followerUser._id, followerUser);
-      res.json(currentUser);
+    if (currentUser && followedUser) {
+      currentUser.following.push(followedUser.username);
+      followedUser.followers.push(currentUser.username);
+      console.log(currentUser)
+      await dao.updateUser(currentUser.username, currentUser);
+      await dao.updateUser(followedUser.username, followedUser);
+      res.json(followedUser);
     } else {
       res.status(400).json({ error: "Username does not exist" });
     }
