@@ -70,19 +70,14 @@ function UserRoutes(app) {
   };
   const deleteUser = async (req, res) => {
     const { username } = req.params;
-    console.log("Username: " + username);
     const user = await dao.findUserByUsername(username);
     // update the followers
     const followers = user.followers;
-    console.log("Followers: " + followers);
     for (let i = 0; i < followers.length; i++) {
       const follower = await dao.findUserByUsername(followers[i]);
-      console.log("Follower before: " + follower);
       follower.following = follower.following.filter((u) => u !== username);
-      console.log("Follower after: " + follower);
       await dao.updateUser(follower.username, follower);
     }
-    console.log("done");
 
     // update the following
     const followings = user.following;
