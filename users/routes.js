@@ -15,12 +15,12 @@ function UserRoutes(app) {
     res.json(user);
   };
   const findUserByUsername = async (req, res) => {
-      const user = await dao.findUserByUsername(req.params.username);
-      if (user) {
-        res.json(user);
-      } else {
-        res.status(400).json({ error: "Username does not exist" })
-      }
+    const user = await dao.findUserByUsername(req.params.username);
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(400).json({ error: "Username does not exist" });
+    }
   };
   const findUserByCredentials = async (req, res) => {
     const user = await dao.findUserByCredentials(
@@ -64,7 +64,7 @@ function UserRoutes(app) {
 
     // update the user
     const status = await dao.updateUser(username, req.body);
-    console.log(req.body)
+    console.log(req.body);
 
     res.json(status);
   };
@@ -132,7 +132,7 @@ function UserRoutes(app) {
     if (currentUser && followedUser) {
       currentUser.following.push(followedUser.username);
       followedUser.followers.push(currentUser.username);
-      console.log(currentUser)
+      console.log(currentUser);
       await dao.updateUser(currentUser.username, currentUser);
       await dao.updateUser(followedUser.username, followedUser);
       res.json(followedUser);
@@ -147,8 +147,12 @@ function UserRoutes(app) {
     const followedUser = await dao.findUserByUsername(username);
 
     if (currentUser && followedUser) {
-      currentUser.following = currentUser.following.filter((u) => u !== username);
-      followedUser.followers = followedUser.followers.filter((u) => u !== currentUser.username);
+      currentUser.following = currentUser.following.filter(
+        (u) => u !== username,
+      );
+      followedUser.followers = followedUser.followers.filter(
+        (u) => u !== currentUser.username,
+      );
       await dao.updateUser(currentUser.username, currentUser);
       await dao.updateUser(followedUser.username, followedUser);
       res.json(followedUser);
@@ -171,7 +175,7 @@ function UserRoutes(app) {
   app.post("/api/users/account", account);
 
   app.put("/api/users/username/:username/follow", addFollower);
-  app.put("/api/users/username/:username/unfollow", unFollow)
+  app.put("/api/users/username/:username/unfollow", unFollow);
 }
 
 export default UserRoutes;
