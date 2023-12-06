@@ -63,10 +63,29 @@ function UserRoutes(app) {
     }
 
     // update the user
-    const status = await dao.updateUser(username, req.body);
-    console.log(req.body);
+    try {
+      const status = await dao.updateUser(username, req.body);
+    } catch (e) {
+      res.status(400).json({ error: "Username already taken" });
+      return
+    }
+    
+    // Return Updated User
+    const updatedUser = await dao.findUserByUsername(req.body.username);
+    
+    // Update the session of the user, if its an admin don't do anything
+    if (req.session["currentUser"] && req.session["currentUser"].role === "USER") {
+      req.session["currentUser"] = updatedUser;
+    }
 
-    res.json(status);
+    // Update the session of the user, if its an admin and they are updating their own profile
+    if (req.session["currentUser"] && req.session["currentUser"].role === "ADMIN" && req.session["currentUser"].username === req.body.username) {
+      req.session["currentUser"] = updatedUser;
+    }
+
+    // Return the updated user
+    res.json(updatedUser);
+
   };
   const deleteUser = async (req, res) => {
     const { username } = req.params;
