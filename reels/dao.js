@@ -5,7 +5,7 @@ export const createReel = (reel, movies) =>
 export const findAllReels = () =>
     model.find().populate("movies").exec();
 export const findReelById = (reelId) =>
-    model.findOne({ _id: reelId });
+    model.findOne({ _id: reelId }).populate("movies").exec();
 export const updateReel = (reelId, reel) =>
   model.updateOne({ _id: reelId }, { $set: reel });
 export const deleteReel = (reelId) =>
