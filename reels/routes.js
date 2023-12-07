@@ -1,8 +1,19 @@
 import * as dao from "./dao.js";
+import * as userDao from "../users/dao.js";
 
 function ReelRoutes(app) {
   const createReel = async (req, res) => {
+    // Create the new reel
     const reel = await dao.createReel(req.body.reel, req.body.movies);
+
+    // Get the current user (only current user can create a reel)
+    const currentUser = req.session["currentUser"];
+    currentUser.reels.push(reel);
+
+    // Update the users "reels" field with the new reel
+    await userDao.updateUser(currentUser.username, currentUser);
+    // Don't forget to update the session with the new user
+    req.session["currentUser"] = currentUser;
     res.json(reel);
   };
   const findAllReels = async (req, res) => {
