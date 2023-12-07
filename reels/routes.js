@@ -18,6 +18,11 @@ function ReelRoutes(app) {
     const status = await dao.updateReel(reelId, req.body);
     res.json(status);
   };
+  const addMovieToReel = async (req, res) => {
+    const { reelId, movieId } = req.params;
+    const status = await dao.addMovieToReel(reelId, movieId);
+    res.json(status);
+  }
   const deleteReel = async (req, res) => {
     const status = await dao.deleteReel(req.params.reelId);
     res.json(status);
@@ -27,6 +32,7 @@ function ReelRoutes(app) {
   app.get("/api/reels", findAllReels);
   app.get("/api/reels/:reelId", findReelById);
   app.put("/api/reels/:reelId", updateReel);
+  app.put("/api/reels/:reelId/:movieId", addMovieToReel);
   app.delete("/api/reels/:reelId", deleteReel);
 }
 
