@@ -162,6 +162,13 @@ function UserRoutes(app) {
     }
   };
 
+  const findUsersByNames = async (req, res) => {
+    const { username } = req.params;
+    const { role, minFollowing} = req.query;
+    const users = await dao.findUsersByNames(username, role, minFollowing);
+    res.json(users);
+  }
+
   app.post("/api/users", createUser);
   app.get("/api/users", findAllUsers);
   app.get("/api/users/:userId", findUserById);
@@ -177,6 +184,8 @@ function UserRoutes(app) {
 
   app.put("/api/users/username/:username/follow", addFollower);
   app.put("/api/users/username/:username/unfollow", unFollow)
+
+  app.get("/api/users/names/:username", findUsersByNames)
 }
 
 export default UserRoutes;
