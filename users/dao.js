@@ -8,7 +8,7 @@ export const findUserById = (userId) =>
 
 export const findUserByUsername = (username) =>
   model.findOne({ username: username }).populate("reels").exec();
-  
+
 export const findUserByCredentials = (usr, pass) =>
   model.findOne({ username: usr, password: pass }).populate("reels").exec();
 export const findUsersByNames = (username, role, minFollowing) =>

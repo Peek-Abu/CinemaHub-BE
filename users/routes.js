@@ -15,12 +15,12 @@ function UserRoutes(app) {
     res.json(user);
   };
   const findUserByUsername = async (req, res) => {
-      const user = await dao.findUserByUsername(req.params.username);
-      if (user) {
-        res.json(user);
-      } else {
-        res.status(400).json({ error: "Username does not exist" })
-      }
+    const user = await dao.findUserByUsername(req.params.username);
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(400).json({ error: "Username does not exist" });
+    }
   };
   const findUserByCredentials = async (req, res) => {
     const user = await dao.findUserByCredentials(
@@ -63,26 +63,40 @@ function UserRoutes(app) {
     }
 
     // update the user
-    const status = await dao.updateUser(username, req.body);
-    console.log(req.body)
+    try {
+      const status = await dao.updateUser(username, req.body);
+    } catch (e) {
+      res.status(400).json({ error: "Username already taken" });
+      return
+    }
+    
+    // Return Updated User
+    const updatedUser = await dao.findUserByUsername(req.body.username);
+    
+    // Update the session of the user, if its an admin don't do anything
+    if (req.session["currentUser"] && req.session["currentUser"].role === "USER") {
+      req.session["currentUser"] = updatedUser;
+    }
 
-    res.json(status);
+    // Update the session of the user, if its an admin and they are updating their own profile
+    if (req.session["currentUser"] && req.session["currentUser"].role === "ADMIN" && req.session["currentUser"].username === req.body.username) {
+      req.session["currentUser"] = updatedUser;
+    }
+
+    // Return the updated user
+    res.json(updatedUser);
+
   };
   const deleteUser = async (req, res) => {
     const { username } = req.params;
-    console.log("Username: " + username);
     const user = await dao.findUserByUsername(username);
     // update the followers
     const followers = user.followers;
-    console.log("Followers: " + followers);
     for (let i = 0; i < followers.length; i++) {
       const follower = await dao.findUserByUsername(followers[i]);
-      console.log("Follower before: " + follower);
       follower.following = follower.following.filter((u) => u !== username);
-      console.log("Follower after: " + follower);
       await dao.updateUser(follower.username, follower);
     }
-    console.log("done");
 
     // update the following
     const followings = user.following;
@@ -137,7 +151,7 @@ function UserRoutes(app) {
     if (currentUser && followedUser) {
       currentUser.following.push(followedUser.username);
       followedUser.followers.push(currentUser.username);
-      console.log(currentUser)
+      console.log(currentUser);
       await dao.updateUser(currentUser.username, currentUser);
       await dao.updateUser(followedUser.username, followedUser);
       res.json(followedUser);
@@ -152,8 +166,12 @@ function UserRoutes(app) {
     const followedUser = await dao.findUserByUsername(username);
 
     if (currentUser && followedUser) {
-      currentUser.following = currentUser.following.filter((u) => u !== username);
-      followedUser.followers = followedUser.followers.filter((u) => u !== currentUser.username);
+      currentUser.following = currentUser.following.filter(
+        (u) => u !== username,
+      );
+      followedUser.followers = followedUser.followers.filter(
+        (u) => u !== currentUser.username,
+      );
       await dao.updateUser(currentUser.username, currentUser);
       await dao.updateUser(followedUser.username, followedUser);
       res.json(followedUser);
