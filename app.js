@@ -20,10 +20,12 @@ mongoose.connect(
 
 const app = express();
 
+console.log("REACT_URL = " + process.env.REACT_APP_FRONTEND_URL);
+
 app.use(
   cors({
     credentials: true,
-    origin: ["http://localhost:3000", "https://gentle-puppy-653c8e.netlify.app"],
+    origin: ["http://localhost:3000", process.env.REACT_APP_FRONTEND_URL],
   }),
 );
 const sessionOptions = {
