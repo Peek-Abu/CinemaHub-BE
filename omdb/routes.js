@@ -39,8 +39,8 @@ function omdbAPIRoutes(app) {
                 });
                 await Promise.all(movieIdsPromises);
             });
-            // map over currentUsers followers and find their reels, then find the movies in those reels and add them to apiMoviesOmdbIds
-            const followersOmdbIdsPromises = currentUser.followers.map(async follower => {
+            // map over currentUsers following and find their reels, then find the movies in those reels and add them to apiMoviesOmdbIds
+            const followingOmdbIdsPromises = currentUser.following.map(async follower => {
                 const followerObject = await findUserByUsername(follower);
                 const followerReels = followerObject.reels;
                 const followerReelsMoviesPromises = followerReels.map(async reel => {
@@ -52,7 +52,7 @@ function omdbAPIRoutes(app) {
                 });
                 await Promise.all(followerReelsMoviesPromises);
             });
-            await Promise.all([...reelsOmdbIdsPromises, ...followersOmdbIdsPromises]);
+            await Promise.all([...reelsOmdbIdsPromises, ...followingOmdbIdsPromises]);
             const combinedMovies = apiMovies.map(apiMovie => {
                 apiMovie.isInReels = apiMoviesOmdbIds.find(movie => {
                     return movie.id === apiMovie.imdbID
