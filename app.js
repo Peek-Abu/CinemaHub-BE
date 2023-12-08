@@ -23,7 +23,7 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: ["http://localhost:3000", process.env.REACT_APP_FRONTEND_URL],
+    origin: ["http://localhost:3000", "https://gentle-puppy-653c8e.netlify.app"],
   }),
 );
 const sessionOptions = {
