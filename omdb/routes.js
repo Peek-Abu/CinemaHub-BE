@@ -1,6 +1,7 @@
 const API_KEY = "9f564754"; //"d35a225d"
 const BASE_API = `https://www.omdbapi.com/?apikey=${API_KEY}&`;
 import { findMovieById } from "../movies/dao.js";
+import { findUserByUsername } from "../users/dao.js";
 function omdbAPIRoutes(app) {
     const findMovieByImdbID = async (req, res) => {
         const { imdbId } = req.params;
@@ -34,15 +35,32 @@ function omdbAPIRoutes(app) {
             const reelsOmdbIdsPromises = currentUser.reels.map(async reel => {
                 const movieIdsPromises = reel.movies.map(async movieId => {
                     const movie = await findMovieById(movieId);
-                    apiMoviesOmdbIds.push({id: movie.omdbId, title: reel.title});
+                    apiMoviesOmdbIds.push({id: movie.omdbId, title: reel.title, username: currentUser.username});
                 });
                 await Promise.all(movieIdsPromises);
             });
-            await Promise.all(reelsOmdbIdsPromises);
+            // map over currentUsers followers and find their reels, then find the movies in those reels and add them to apiMoviesOmdbIds
+            const followersOmdbIdsPromises = currentUser.followers.map(async follower => {
+                const followerObject = await findUserByUsername(follower);
+                const followerReels = followerObject.reels;
+                const followerReelsMoviesPromises = followerReels.map(async reel => {
+                    const movieIdsPromises = reel.movies.map(async movieId => {
+                        const movie = await findMovieById(movieId);
+                        apiMoviesOmdbIds.push({id: movie.omdbId, title: reel.title, username: followerObject.username});
+                    });
+                    await Promise.all(movieIdsPromises);
+                });
+                await Promise.all(followerReelsMoviesPromises);
+            });
+            await Promise.all([...reelsOmdbIdsPromises, ...followersOmdbIdsPromises]);
             const combinedMovies = apiMovies.map(apiMovie => {
-                apiMovie.isInReels = apiMoviesOmdbIds.find(movie => movie.id === apiMovie.imdbID);
-                // apiMovie.isInReels = apiMoviesOmdbIds.includes(apiMovie.imdbID);
-                // apiMovie.isInReels = apiMoviesOmdbIds.includes(apiMovie.imdbID) ? 
+                apiMovie.isInReels = apiMoviesOmdbIds.find(movie => {
+                    return movie.id === apiMovie.imdbID
+                });
+                if (apiMovie.isInReels) {
+                    apiMovie.reelTitle = apiMovie.isInReels.title;
+                    apiMovie.reelUsername = apiMovie.isInReels.username;
+                }
                 return apiMovie;
             });
             results.Search = combinedMovies;
