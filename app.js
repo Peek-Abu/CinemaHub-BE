@@ -15,7 +15,7 @@ mongoose.connection.on("error", function (err) {
   return console.log(err);
 });
 mongoose.connect(
-  "mongodb+srv://cinemahub-admin:L2tIRabOkI9fLDp6@cinemahub.y3xlihq.mongodb.net/CinemaHub",
+  process.env.MONGODB_URI || "mongodb+srv://cinemahub-admin:L2tIRabOkI9fLDp6@cinemahub.y3xlihq.mongodb.net/CinemaHub",
 );
 
 const app = express();
@@ -29,7 +29,7 @@ app.use(
   }),
 );
 const sessionOptions = {
-  secret: "any string",
+  secret: process.env.SESSION_SECRET || "any string",
   resave: false,
   saveUninitialized: false,
 };
@@ -51,6 +51,7 @@ ReviewRoutes(app);
 ReelRoutes(app);
 MovieRoutes(app);
 omdbAPIRoutes(app);
+const PORT = process.env.PORT || 4000;
 app.listen(4000, () => {
-  console.log("Server running on port 4000");
+  console.log(`Server running on port ${PORT}`);
 });
